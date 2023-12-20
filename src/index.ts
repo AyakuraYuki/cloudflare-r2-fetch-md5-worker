@@ -4,9 +4,11 @@
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		// get object key from url, the `path` part without prefix `/` is the actual object key
 		const url = new URL(request.url);
 		const key = url.pathname.slice(1);
 
+		// only support `HEAD` request
 		switch (request.method) {
 			case 'HEAD': {
 				const object = await env.WORKLOAD_BUCKET.head(key);
@@ -15,6 +17,8 @@ export default {
 				}
 
 				const headers = assembleHeaders(object);
+
+				// try get md5 from checksums
 				let md5 = object.checksums.toJSON().md5;
 				if (md5) {
 					headers.set('X-Object-MD5', md5);
@@ -25,6 +29,7 @@ export default {
 					headers
 				});
 			}
+
 			default: {
 				return new Response('Method Not Allowed', {
 					status: 405,
