@@ -14,27 +14,11 @@ export default {
 					return new Response('Object Not Found', { status: 404 });
 				}
 
-				const headers = new Headers();
-				object.writeHttpMetadata(headers);
-				headers.set('etag', object.httpEtag);
-				headers.set('Content-Length', object.size.toString());
-				if (object.customMetadata) {
-					for (let k in object.customMetadata) {
-						headers.set(k, object.customMetadata[k]);
-					}
-				}
-
-				// get md5 from object checksums
+				const headers = assembleHeaders(object);
 				let md5 = object.checksums.toJSON().md5;
 				if (md5) {
 					headers.set('X-Object-MD5', md5);
-
-					const bytes = new Uint8Array(md5.length / 2);
-					for (let i = 0; i < md5.length; i += 2) {
-						bytes[i / 2] = parseInt(md5.substring(i, i + 2), 16);
-					}
-					const b64 = btoa(String.fromCharCode.apply(null, bytes as unknown as number[]));
-					headers.set('Content-MD5', b64);
+					headers.set('Content-MD5', base16StringToBase64String(md5));
 				}
 
 				return new Response(null, {
@@ -52,3 +36,24 @@ export default {
 		}
 	}
 };
+
+function assembleHeaders(object: R2Object): Headers {
+	const headers = new Headers();
+	object.writeHttpMetadata(headers);
+	headers.set('etag', object.httpEtag);
+	headers.set('Content-Length', object.size.toString());
+	if (object.customMetadata) {
+		for (let k in object.customMetadata) {
+			headers.set(k, object.customMetadata[k]);
+		}
+	}
+	return headers;
+}
+
+function base16StringToBase64String(raw: string): string {
+	const bytes = new Uint8Array(raw.length / 2);
+	for (let i = 0; i < raw.length; i += 2) {
+		bytes[i / 2] = parseInt(raw.substring(i, i + 2), 16);
+	}
+	return btoa(String.fromCharCode.apply(null, bytes as unknown as number[]));
+}
