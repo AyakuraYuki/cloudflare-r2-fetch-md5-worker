@@ -18,11 +18,11 @@ export default {
 				object.writeHttpMetadata(headers);
 				headers.set('etag', object.httpEtag);
 
+				// get md5 from object checksums
 				let md5 = object.checksums.toJSON().md5;
-				if (!md5) {
-					md5 = '';
+				if (md5) {
+					headers.set('X-Object-MD5', md5);
 				}
-				headers.set('X-Object-MD5', md5);
 
 				return new Response(null, {
 					headers
