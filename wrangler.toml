@@ -1,5 +1,5 @@
 name = "cloudflare-r2-fetch-md5-worker"
-main = "index.js"
+main = "src/index.ts"
 compatibility_date = "2023-12-18"
 account_id = "fd244bd95584b6ee3563ee46abe7604d"
 workers_dev = true
