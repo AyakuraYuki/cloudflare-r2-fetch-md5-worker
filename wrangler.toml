@@ -1,0 +1,9 @@
+name = "cloudflare-r2-fetch-md5-worker"
+main = "index.js"
+compatibility_date = "2023-12-18"
+account_id = "fd244bd95584b6ee3563ee46abe7604d"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "WORKLOAD_BUCKET"
+bucket_name = "defo-cdn-assets"
